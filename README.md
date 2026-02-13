@@ -9,7 +9,7 @@ This project replaces the traditional static resume with an immersive, terminal-
 This project was built using a modern "Human-in-the-Loop" workflow. In an era where syntax is cheap but logic is expensive,
 I utilized Generative AI as a force multiplier to handle syntax generation.
 
-However, the core architecture, the creative direction, and the 11+ hours of iterative refinement** are entirely my own.
+However, the core architecture, the creative direction, and the **11+ hours** of iterative refinement are entirely my own.
 
 I didn't just copy-paste code; I curated it. Every animation timing, every CSS transition
 and every logic gate was manually tweaked to ensure a lag-free, hyper-aesthetic experience. 
