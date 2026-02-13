@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="description" content="Creative Writing and Projects by Manav Shah. Exploring technology, philosophy, and storytelling.">
+<meta name="keywords" content="Manav Shah, Writing, Blog, Stories, Projects, Safarnama, Children of Our Own">
+<meta name="author" content="Manav Shah">
+<meta property="og:title" content="MANAV_OS | Writing & Projects">
+<meta property="og:description" content="Read the latest writing and project case studies by Manav Shah.">
+<meta property="og:image" content="assets/profile.jpg">
+<meta property="og:url" content="https://manav-os.netlify.app/projects.html">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANAV | WRITING</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        /* 1. CORE LAYOUT */
+        body { 
+            background-color: #050505; 
+            color: #fff; 
+            font-family: 'Share Tech Mono', monospace; 
+            margin: 0; 
+            overflow-x: hidden; 
+            cursor: none; /* Hide Default Cursor */
+        }
+        
+        .screen { 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 120px 20px 50px 20px; 
+            position: relative; 
+            z-index: 10; 
+        }
+        
+        /* 2. TACTICAL CURSOR */
+        #cursor-crosshair {
+            position: fixed; top: 0; left: 0; width: 30px; height: 30px;
+            pointer-events: none; z-index: 99999;
+            transform: translate(-50%, -50%);
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.1s;
+        }
+        #cursor-crosshair::before, #cursor-crosshair::after {
+            content: ''; position: absolute; background: #fff; box-shadow: 0 0 4px #fff;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        #cursor-crosshair::before { width: 2px; height: 20px; }
+        #cursor-crosshair::after { width: 20px; height: 2px; }
+
+        body.hovering #cursor-crosshair::before,
+        body.hovering #cursor-crosshair::after { background: #ff003c; box-shadow: 0 0 10px #ff003c; }
+        body.hovering #cursor-crosshair { transform: translate(-50%, -50%) rotate(45deg) scale(1.2); }
+
+        /* 3. HEXAGON BACKGROUND */
+        #hex-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; background: #020202; pointer-events: none;
+        }
+
+        /* 4. HEADER */
+        .header-container { text-align: center; margin-bottom: 60px; position: relative; z-index: 20; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .scan-wrapper { position: relative; display: inline-block; padding: 10px 20px; }
+        .page-title { font-size: 3.5rem; letter-spacing: 5px; color: #fff; margin: 0; text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); white-space: nowrap; }
+        
+        .scan-line {
+            position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: #ff003c; box-shadow: 0 0 20px #ff003c; opacity: 0;
+            animation: singleScan 2s ease-in-out forwards 0.5s;
+        }
+        @keyframes singleScan {
+            0% { top: 0%; opacity: 1; width: 0%; } 20% { width: 100%; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; width: 100%; }
+        }
+
+        .verification-badge {
+            margin-top: 15px; color: #00ff41; font-size: 1rem; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(-10px); transition: all 0.5s ease;
+        }
+        .verification-badge.visible { opacity: 1; transform: translateY(0); }
+        .verification-badge.hidden { opacity: 0; transform: translateY(10px); }
+
+        .insta-terminal-link {
+            margin-top: 20px; color: #888; font-size: 0.9rem; text-decoration: none; letter-spacing: 2px; opacity: 0; transition: 0.3s; cursor: none;
+        }
+        .insta-terminal-link:hover { color: #ff003c; text-shadow: 0 0 10px #ff003c; }
+        .insta-terminal-link.reveal { animation: simpleFadeIn 1s forwards; }
+        @keyframes simpleFadeIn { to { opacity: 1; } }
+
+        /* 5. CARDS & TARGET LOCK */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; width: 100%; max-width: 1200px; position: relative; z-index: 20; }
+        
+        .project-card { 
+            background: rgba(15, 15, 15, 0.95); 
+            border: 1px solid #333; 
+            padding: 30px; 
+            display: flex; flex-direction: column; justify-content: space-between;
+            min-height: 250px;
+            position: relative;
+            cursor: none;
+            
+            /* FIXED: 0.2s Transition for smooth light (Not 0s) */
+            transition: all 0.2s ease-out;
+            
+            opacity: 0; transform: translateY(30px);
+        }
+        
+        .project-card.reveal { animation: cardEntry 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes cardEntry { to { opacity: 1; transform: translateY(0); } }
+
+        .project-card:hover { 
+            border-color: #fff; 
+            box-shadow: 0 0 60px rgba(255, 255, 255, 0.9), inset 0 0 30px rgba(255, 255, 255, 0.2); 
+            transform: translateY(-5px) scale(1.02);
+            z-index: 50; background: #1a1a1a; 
+        }
+
+        /* TARGET LOCK CORNERS */
+        .corner {
+            position: absolute; width: 10px; height: 10px;
+            border-color: #ff003c; border-style: solid;
+            transition: all 0.2s ease-out; opacity: 0; 
+        }
+        .tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+        .tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+        .bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+        .br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+        .project-card:hover .corner { opacity: 1; box-shadow: 0 0 10px #ff003c; }
+
+        .project-card h3 { color: #ff003c; font-size: 1.3rem; margin-bottom: 10px; letter-spacing: 1px; }
+        .project-card p { color: #bbb; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.4; }
+        .link-text { color: #fff; text-decoration: none; border-bottom: 1px solid #ff003c; display: inline-block; font-size: 0.9rem; width: fit-content; transition: 0.3s; cursor: none; }
+        .link-text:hover { color: #ff003c; text-shadow: 0 0 10px #ff003c; }
+        .locked-card { opacity: 0.7; border-style: dashed; }
+        .locked-card:hover { border-color: #ff003c; box-shadow: 0 0 30px #ff003c; opacity: 1; background: #0a0a0a; }
+
+        /* NAV */
+        nav { position: fixed; top: 0; width: 100%; padding: 20px 50px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.95); z-index: 999; border-bottom: 1px solid #8a0020; }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { color: #fff; text-decoration: none; font-size: 1.1rem; cursor: none; }
+
+        /* CURTAIN */
+        #intro-curtain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; justify-content: center; align-items: center; pointer-events: none; }
+        .curtain-panel { position: absolute; left: 0; width: 100%; height: 50%; background: #000; transition: transform 0.8s ease-in-out; }
+        .top { top: 0; transform-origin: top; }
+        .bottom { bottom: 0; transform-origin: bottom; }
+        .curtain-content { position: absolute; z-index: 10000; transition: opacity 0.5s; }
+        .curtain-open .top { transform: translateY(-100%); }
+        .curtain-open .bottom { transform: translateY(100%); }
+        .curtain-open .curtain-content { opacity: 0; }
+
+        @media (max-width: 768px) {
+            .page-title { font-size: 2.0rem; }
+            .screen { padding-top: 100px; }
+            #cursor-crosshair { display: none; } 
+            * { cursor: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cursor-crosshair"></div>
+
+    <div id="intro-curtain">
+        <div class="curtain-content"><h2 style="color:#fff; letter-spacing:5px;">ESTABLISHING UPLINK...</h2></div>
+        <div class="curtain-panel top"></div><div class="curtain-panel bottom"></div>
+    </div>
+
+    <canvas id="hex-canvas"></canvas>
+
+    <nav>
+    <div style="color:#ff003c; font-weight:bold; font-size:1.5rem;">MANAV_OS</div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">Profile</a></li>
+        <li><a href="projects.html" style="color:#ff003c">Writing</a></li>
+        <li><a href="education.html">Education</a></li> <li><a href="contact.html">Connect</a></li>
+    </ul>
+</nav>
+
+    <section class="screen">
+        
+        <div class="header-container">
+            <div class="scan-wrapper">
+                <div class="scan-line"></div>
+                <h1 class="page-title" id="glitch-header" data-value="CREATIVE_ARCHIVE">// 0x7F_LOCKED //</h1>
+            </div>
+
+            <div class="verification-badge" id="verify-badge">
+                <i class="fas fa-fingerprint"></i>
+                <span>IDENTITY_VERIFIED</span>
+            </div>
+
+            <a href="https://www.instagram.com/manavvwrites/" target="_blank" class="insta-terminal-link" id="insta-link">
+                [ ACCESS_TERMINAL: @MANAVVWRITES ]
+            </a>
+        </div>
+
+        <div class="grid">
+            <div class="project-card" style="transition-delay: 0.1s;">
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+                <h3>RESPECT IS THE REAL CARE</h3>
+                <p>Respect isn't just a word; it is the highest form of care we can offer. A deep dive into the essence of dignity.</p>
+                <a href="https://www.instagram.com/p/DOoXzEmEjO8/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" target="_blank" class="link-text">READ POST ></a>
+            </div>
+
+            <div class="project-card" style="transition-delay: 0.2s;">
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+                <h3>THE QUIET POISON OF TOXICITY</h3>
+                <p>Unveiling the harsh reality of social toxicity. It spreads silently but destroys loudly. Protect your peace.</p>
+                <a href="https://www.instagram.com/p/DOxwVtZElnP/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" target="_blank" class="link-text">READ POST ></a>
+            </div>
+
+            <div class="project-card" style="transition-delay: 0.3s;">
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+                <h3>FINAL RESONANCE</h3>
+                <p>A beautiful love story capturing the echoes of affection. When words fade, the resonance of true emotion remains.</p>
+                <a href="https://www.instagram.com/p/DMcgPKsyjqC/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" target="_blank" class="link-text">READ STORY ></a>
+            </div>
+
+            <div class="project-card" style="transition-delay: 0.4s;">
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+                <h3>CHILDREN OF OUR OWN</h3>
+                <p>An emotional mini-book project exploring human connections, feelings, and the depth of our own souls.</p>
+                <a href="https://www.instagram.com/manavvwrites/" target="_blank" class="link-text">VIEW SERIES ></a>
+            </div>
+
+            <div class="project-card locked-card" style="transition-delay: 0.5s;">
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+                <h3>// ARCHIVE_LOCKED</h3>
+                <p>Encrypted data detected. This sector is reserved for future creative expansions and unpublished drafts.</p>
+                <span style="color:#555; font-size:0.8rem;">[ STATUS: COMING SOON ]</span>
+            </div>
+
+            <div class="project-card locked-card" style="transition-delay: 0.6s;">
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+                <h3>// FUTURE_SIGNAL</h3>
+                <p>Awaiting input. New stories are currently being compiled in the neural network.</p>
+                <span style="color:#555; font-size:0.8rem;">[ STATUS: PENDING ]</span>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            /* --- 1. GLOBAL VARIABLES --- */
+            const header = document.getElementById("glitch-header");
+            const badge = document.getElementById("verify-badge");
+            const instaLink = document.getElementById("insta-link");
+            const cards = document.querySelectorAll(".project-card");
+            let isHoveringCard = false; 
+
+            /* --- 2. HOVER DETECTION --- */
+            const cursor = document.getElementById("cursor-crosshair");
+            const clickables = document.querySelectorAll('a, .project-card, button, .nav-links a');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => { document.body.classList.add('hovering'); isHoveringCard = true; });
+                el.addEventListener('mouseleave', () => { document.body.classList.remove('hovering'); isHoveringCard = false; });
+            });
+
+            /* --- 3. ANIMATION SEQUENCE --- */
+            setTimeout(() => { badge.classList.add("visible"); }, 2500);
+            setTimeout(() => {
+                badge.classList.remove("visible");
+                badge.classList.add("hidden");
+                if (header) {
+                    runScramble(header, "CREATIVE_ARCHIVE");
+                    header.onmouseover = () => runScramble(header, "CREATIVE_ARCHIVE");
+                }
+                cards.forEach(card => card.classList.add("reveal"));
+                if(instaLink) instaLink.classList.add("reveal");
+            }, 4000);
+
+            /* --- 4. HEXAGON CANVAS LOGIC --- */
+            const canvas = document.getElementById('hex-canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                let width, height, mouse = { x: -500, y: -500 };
+                function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+                window.addEventListener('resize', resize); resize();
+                window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+                const hexRadius = 25;
+                const hexWidth = Math.sqrt(3) * hexRadius;
+                const hexHeight = 2 * hexRadius;
+
+                function animateHex() {
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.strokeStyle = '#222'; ctx.lineWidth = 1;
+
+                    for (let y = 0; y < height + hexHeight; y += hexHeight * 0.75) {
+                        for (let x = 0; x < width + hexWidth; x += hexWidth) {
+                            let drawX = x; let drawY = y;
+                            if (Math.floor(y / (hexHeight * 0.75)) % 2 === 1) drawX += hexWidth / 2;
+                            
+                            const dx = mouse.x - drawX; const dy = mouse.y - drawY;
+                            const dist = Math.sqrt(dx*dx + dy*dy);
+
+                            ctx.beginPath();
+                            for (let i = 0; i < 6; i++) {
+                                const angle = 2 * Math.PI / 6 * i;
+                                const hx = drawX + hexRadius * Math.cos(angle);
+                                const hy = drawY + hexRadius * Math.sin(angle);
+                                if (i === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+                            }
+                            ctx.closePath();
+
+                            if (dist < 60 && !isHoveringCard) {
+                                ctx.strokeStyle = '#ff003c'; ctx.stroke();
+                            } else {
+                                ctx.strokeStyle = '#1a1a1a'; ctx.stroke();
+                            }
+                        }
+                    }
+                    requestAnimationFrame(animateHex);
+                }
+                animateHex();
+            }
+
+            /* --- 5. CURSOR MOVEMENT --- */
+            window.addEventListener("mousemove", function (e) {
+                cursor.style.left = e.clientX + "px";
+                cursor.style.top = e.clientY + "px";
+            });
+
+            function runScramble(element, finalValue) {
+                const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+                let iteration = 0;
+                clearInterval(element.interval);
+                element.interval = setInterval(() => {
+                    element.innerText = finalValue.split("").map((letter, index) => {
+                        if(index < iteration) return finalValue[index];
+                        return letters[Math.floor(Math.random() * letters.length)];
+                    }).join("");
+                    if(iteration >= finalValue.length) clearInterval(element.interval);
+                    iteration += 1/3; 
+                }, 30);
+            }
+        });
+    </script>
+</body>
+</html>

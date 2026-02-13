@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANAV | TRAJECTORY</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <script>
+        if (performance.getEntriesByType("navigation")[0].type === "reload") {
+            window.location.href = "index.html";
+        }
+    </script>
+
+    <style>
+        /* 1. CURSOR OVERRIDE */
+        html, body, * { cursor: crosshair !important; }
+        a, button, .nav-links a { cursor: pointer !important; }
+
+        /* 2. CORE LAYOUT */
+        html, body {
+            margin: 0; padding: 0;
+            background-color: #050505; 
+            color: #fff; 
+            font-family: 'Share Tech Mono', monospace; 
+            overflow: hidden; 
+            height: 100vh; width: 100vw;
+        }
+
+        /* 3. LAYERS */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 90; opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        #graph-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10;
+        }
+
+        /* 4. HEADER (Typewriter) */
+        .typewriter-header {
+            position: absolute; 
+            top: 15%; left: 50%; transform: translateX(-50%);
+            z-index: 20; pointer-events: none; text-align: center;
+        }
+        .typewriter-header h2 {
+            font-size: 1.2rem; color: #ff003c; letter-spacing: 3px; 
+            margin: 0; font-weight: normal;
+            border-right: 2px solid #ff003c;
+            white-space: nowrap; overflow: hidden;
+            animation: blinkCursor 0.8s steps(2) infinite;
+        }
+        @keyframes blinkCursor { 0% { border-color: #ff003c; } 50% { border-color: transparent; } }
+
+        /* 5. DATA CARD */
+        #data-card {
+            position: absolute;
+            background: rgba(5, 5, 5, 0.95);
+            border: 1px solid #ff003c;
+            padding: 20px; width: 350px;
+            pointer-events: none; z-index: 50;
+            display: none;
+            box-shadow: 0 0 50px rgba(255, 0, 60, 0.2);
+            border-left: 5px solid #ff003c;
+        }
+        #data-card h3 {
+            color: #ff003c; margin: 0 0 10px 0; font-size: 1.2rem; letter-spacing: 2px;
+            border-bottom: 1px solid #333; padding-bottom: 5px; text-transform: uppercase;
+        }
+        #data-card .row {
+            display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.85rem; color: #ccc;
+        }
+        #data-card .label { color: #666; }
+        #data-card .val { color: #fff; font-weight: bold; text-transform: uppercase; }
+
+        /* 6. BOTTOM HUD */
+        .bottom-hud {
+            position: absolute; bottom: 30px; left: 50px; right: 50px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            z-index: 20; pointer-events: none;
+        }
+        .typewriter-box {
+            max-width: 600px; color: #ff003c; font-size: 1rem; letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(255, 0, 60, 0.5); min-height: 40px; 
+        }
+        .coords-box {
+            text-align: right; color: #555; font-size: 0.8rem; letter-spacing: 2px;
+        }
+        .coords-box span { color: #fff; }
+        .blink-status { animation: blinkStatus 1.5s infinite; color: #ff003c; }
+        @keyframes blinkStatus { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* 7. NAV */
+        nav { 
+            position: fixed; top: 0; width: 100%; padding: 20px 50px; 
+            display: flex; justify-content: space-between; 
+            background: rgba(5, 5, 5, 0.95); z-index: 100;
+            border-bottom: 1px solid #8a0020; 
+        }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { color: #fff; text-decoration: none; font-size: 1.1rem; transition: 0.3s; }
+        .nav-links a:hover { color: #ff003c; text-shadow: 0 0 10px #ff003c; }
+        .active-link { color: #ff003c !important; text-shadow: 0 0 10px #ff003c; }
+
+        /* CURTAIN */
+        #intro-curtain {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            pointer-events: none;
+        }
+        .curtain-panel {
+            position: absolute; left: 0; width: 100%; height: 50%;
+            background: #000; transition: transform 0.8s ease-in-out;
+        }
+        .top { top: 0; transform-origin: top; }
+        .bottom { bottom: 0; transform-origin: bottom; }
+        .curtain-content { 
+            position: absolute; z-index: 10000; 
+            color: #fff; letter-spacing: 5px; font-size: 1.2rem;
+            transition: opacity 0.5s ease-out;
+        }
+        .curtain-open .top { transform: translateY(-100%); }
+        .curtain-open .bottom { transform: translateY(100%); }
+        .curtain-open .curtain-content { opacity: 0; }
+
+        @media (max-width: 768px) {
+            nav { padding: 20px; }
+            .bottom-hud { flex-direction: column; align-items: flex-start; left: 20px; bottom: 20px; }
+            .coords-box { margin-top: 10px; text-align: left; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="intro-curtain">
+        <div class="curtain-content"><h2 class="loader-text">INITIALIZING TRAJECTORY...</h2></div>
+        <div class="curtain-panel top"></div>
+        <div class="curtain-panel bottom"></div>
+    </div>
+
+    <div class="noise-overlay"></div>
+
+    <nav>
+        <div style="color:#ff003c; font-weight:bold; font-size:1.5rem;">MANAV_OS</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">Profile</a></li>
+            <li><a href="projects.html">Writing</a></li>
+            <li><a href="education.html" class="active-link">Education</a></li>
+            <li><a href="contact.html">Connect</a></li>
+        </ul>
+    </nav>
+
+    <div class="typewriter-header">
+        <h2 id="page-title"></h2>
+    </div>
+
+    <canvas id="graph-container"></canvas>
+
+    <div id="data-card">
+        <h3 id="card-title">TITLE</h3>
+        <div class="row"><span class="label">TIMELINE:</span><span class="val" id="card-year">20XX</span></div>
+        <div class="row"><span class="label">STATUS:</span><span class="val" id="card-status">COMPLETED</span></div>
+        <div style="margin-top:10px; font-size:0.85rem; color:#ddd; line-height:1.4; text-transform:uppercase;" id="card-desc">
+            DESC
+        </div>
+    </div>
+
+    <div class="bottom-hud">
+        <div class="typewriter-box">
+            > <span id="type-text"></span><span class="blink">_</span>
+        </div>
+        <div class="coords-box">
+            CURSOR_TGT: [<span id="mouse-x">0000</span>, <span id="mouse-y">0000</span>]<br>
+            STATUS: <span class="blink-status">HOVER_NODES_TO_SCAN</span>
+        </div>
+    </div>
+
+    <script>
+        // INTRO
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => { document.getElementById('intro-curtain').classList.add('curtain-open'); }, 500);
+        });
+
+        const canvas = document.getElementById('graph-container');
+        const ctx = canvas.getContext('2d');
+        const card = document.getElementById('data-card');
+        const mouseDisplayX = document.getElementById('mouse-x');
+        const mouseDisplayY = document.getElementById('mouse-y');
+        
+        let width, height;
+        let mouse = { x: -100, y: -100 };
+        let progress = 0; 
+        let globalTime = 0; 
+        
+        // AUTO-DEMO VARIABLES
+        let demoActive = false;
+        let demoTimer = 0;
+
+        const points = [
+            { year: "2023", title: "SECONDARY_SCHOOL", status: "COMPLETED", desc: "SVDD ENGLISH MEDIUM SCHOOL. FOUNDATION LAYER ESTABLISHED.", x: 0.05, y: 0.15 },
+            { year: "2025_Q1", title: "HIGHER_SECONDARY", status: "COMPLETED", desc: "VIDYA NIKETAN COLLEGE OF SCIENCE. SYSTEM UPGRADE TO LEVEL 12.", x: 0.30, y: 0.40 },
+            { year: "2025_Q2", title: "MHTCET_EXAM", status: "EXCELLENT (89.37%)", desc: "STATE ENTRANCE EXAM SPIKE. PERCENTILE: 89.3717407", x: 0.50, y: 0.85 },
+            { year: "2025_Q3", title: "ENG_ADMISSION", status: "INITIATED", desc: "SHAH & ANCHOR KUTCHHI ENGINEERING COLLEGE. AI & DS PROTOCOLS ACTIVATED.", x: 0.70, y: 0.60 },
+            { year: "2026", title: "CURRENT_STATE", status: "IN_PROGRESS", desc: "PURSUING B.TECH. OPTIMIZING SKILLSETS. TRAJECTORY: POSITIVE.", x: 0.95, y: 0.90 }
+        ];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            mouseDisplayX.innerText = String(e.clientX).padStart(4, '0');
+            mouseDisplayY.innerText = String(e.clientY).padStart(4, '0');
+            
+            // Stop auto-demo if user moves mouse
+            if(demoActive) {
+                demoActive = false;
+                card.style.display = 'none';
+            }
+        });
+
+        // ACTIVATE DEMO AFTER 3 SECONDS
+        setTimeout(() => {
+            demoActive = true;
+        }, 3000);
+
+        const titleText = "// ACADEMIC_TRAJECTORY";
+        const titleEl = document.getElementById('page-title');
+        let titleIdx = 0;
+        function typeHeader() {
+            if (titleIdx < titleText.length) {
+                titleEl.innerHTML += titleText.charAt(titleIdx);
+                titleIdx++;
+                setTimeout(typeHeader, 50);
+            }
+        }
+        setTimeout(typeHeader, 800);
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            globalTime += 0.05;
+
+            const padLeft = 100; const padRight = 100;
+            const padTop = 150; const padBottom = 150;
+            const graphW = width - padLeft - padRight;
+            const graphH = height - padTop - padBottom;
+            const originX = padLeft;
+            const originY = height - padBottom;
+
+            // BACKGROUND GRID
+            const gridSize = 100;
+            ctx.lineWidth = 1;
+            for(let x=0; x<width; x+=gridSize) {
+                let dist = Math.abs(x - mouse.x);
+                let opacity = Math.max(0.02, 0.15 - (dist / 600)); 
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+                ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+            }
+            for(let y=0; y<height; y+=gridSize) {
+                let dist = Math.abs(y - mouse.y);
+                let opacity = Math.max(0.02, 0.15 - (dist / 600));
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+                ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+            }
+
+            // AXES
+            const mouseNearX = Math.abs(mouse.y - originY) < 20 && mouse.x > originX && mouse.x < width - padRight;
+            const mouseNearY = Math.abs(mouse.x - originX) < 20 && mouse.y < originY && mouse.y > padTop;
+
+            ctx.lineWidth = 2;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = mouseNearX ? '#fff' : '#ff003c'; 
+            ctx.shadowBlur = mouseNearX ? 15 : 0;
+            ctx.shadowColor = '#fff';
+            ctx.moveTo(originX, originY); ctx.lineTo(width - padRight, originY); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(width - padRight, originY); ctx.lineTo(width - padRight - 10, originY - 5); ctx.lineTo(width - padRight - 10, originY + 5); ctx.fill();
+
+            ctx.beginPath();
+            ctx.strokeStyle = mouseNearY ? '#fff' : '#ff003c'; 
+            ctx.shadowBlur = mouseNearY ? 15 : 0;
+            ctx.moveTo(originX, originY); ctx.lineTo(originX, padTop); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(originX, padTop); ctx.lineTo(originX - 5, padTop + 10); ctx.lineTo(originX + 5, padTop + 10); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // GRAPH LINE
+            if (progress > 0.01) {
+                const pts = points.map(p => ({
+                    x: originX + (graphW * p.x),
+                    y: (originY - (graphH * p.y)) + Math.sin(globalTime + p.x * 5) * 5
+                }));
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(originX, 0, graphW * progress, height);
+                ctx.clip();
+
+                ctx.beginPath();
+                ctx.moveTo(pts[0].x, pts[0].y);
+                for (let i = 0; i < pts.length - 1; i++) {
+                    const curr = pts[i]; const next = pts[i+1];
+                    const cp1x = curr.x + (next.x - curr.x)/2; const cp1y = curr.y;
+                    const cp2x = curr.x + (next.x - curr.x)/2; const cp2y = next.y;
+                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, next.x, next.y);
+                }
+                
+                ctx.strokeStyle = '#ff003c';
+                ctx.lineWidth = 2; 
+                ctx.shadowColor = '#ff003c';
+                ctx.shadowBlur = 10;
+                ctx.stroke();
+
+                ctx.lineTo(pts[pts.length-1].x, originY);
+                ctx.lineTo(pts[0].x, originY);
+                const grad = ctx.createLinearGradient(0, padTop, 0, originY);
+                grad.addColorStop(0, 'rgba(255, 0, 60, 0.3)');
+                grad.addColorStop(1, 'rgba(255, 0, 60, 0)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // POINTS & INTERACTION
+            let isHovering = false;
+
+            points.forEach((p, i) => {
+                let px = originX + (graphW * p.x);
+                let py = (originY - (graphH * p.y)) + Math.sin(globalTime + p.x * 5) * 5;
+
+                if (progress >= p.x) {
+                    let dist = Math.hypot(mouse.x - px, mouse.y - py);
+                    
+                    // Logic: Hover OR Demo Auto-Scan (Targeting the middle peak point)
+                    let isDemoTarget = (demoActive && i === 2); 
+                    
+                    if (dist < 30 || isDemoTarget) {
+                        isHovering = true;
+                        
+                        // Scanner Line
+                        ctx.beginPath();
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([5, 5]);
+                        ctx.moveTo(px, originY); ctx.lineTo(px, padTop);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        // Active Dot
+                        ctx.beginPath();
+                        ctx.fillStyle = '#fff';
+                        ctx.shadowColor = '#fff'; ctx.shadowBlur = 20;
+                        ctx.arc(px, py, 6, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Show Card
+                        card.style.display = 'block';
+                        let cx = px + 40; let cy = py - 50;
+                        if (cx + 350 > width) cx = px - 380;
+                        if (cy < 100) cy = py + 20;
+                        
+                        card.style.left = cx + 'px';
+                        card.style.top = cy + 'px';
+                        
+                        document.getElementById('card-title').innerText = p.title;
+                        document.getElementById('card-year').innerText = p.year;
+                        document.getElementById('card-status').innerText = p.status;
+                        document.getElementById('card-desc').innerText = p.desc;
+
+                        // Auto-hide demo after a few seconds
+                        if(isDemoTarget) {
+                            demoTimer++;
+                            if(demoTimer > 180) demoActive = false; // Stop after ~3 seconds
+                        }
+
+                    } else {
+                        // Passive Dot with Ripple
+                        ctx.beginPath();
+                        ctx.fillStyle = '#050505';
+                        ctx.strokeStyle = '#ff003c';
+                        ctx.lineWidth = 2;
+                        ctx.arc(px, py, 4, 0, Math.PI * 2);
+                        ctx.fill(); ctx.stroke();
+
+                        // Ripple Animation to attract attention
+                        let ripple = (globalTime * 2 + i * 10) % 50;
+                        if (ripple < 30) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(255, 0, 60, ${1 - ripple/30})`;
+                            ctx.lineWidth = 1;
+                            ctx.arc(px, py, 4 + ripple, 0, Math.PI * 2);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            });
+
+            if(!isHovering) card.style.display = 'none';
+
+            if (progress < 1.1) progress += 0.004;
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        const typeText = "ANALYZING ACADEMIC GROWTH PATTERNS... DATA STREAM OPTIMIZED.";
+        const typeEl = document.getElementById('type-text');
+        let typeIdx = 0;
+        function typeWriter() {
+            if (typeIdx < typeText.length) {
+                typeEl.innerHTML += typeText.charAt(typeIdx);
+                typeIdx++;
+                setTimeout(typeWriter, 30);
+            }
+        }
+        setTimeout(typeWriter, 1200);
+    </script>
+</body>
+</html>

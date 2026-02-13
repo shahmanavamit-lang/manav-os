@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="description" content="Manav Shah - AI & Data Science Engineering Student. Welcome to Manav_OS, my personal portfolio.">
+<meta name="keywords" content="Manav Shah, AI, Data Science, Portfolio, Engineer, Mumbai, Manav_OS">
+<meta name="author" content="Manav Shah">
+<meta property="og:title" content="MANAV_OS | Home">
+<meta property="og:description" content="Welcome to the digital workspace of Manav Shah. AI & Data Science Engineering Student.">
+<meta property="og:image" content="assets/profile.jpg"> <meta property="og:url" content="https://manav-os.netlify.app/index.html">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANAV | HOME</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        /* FORCE SYSTEM CURSOR */
+        body, html {
+            cursor: default !important; /* Standard Arrow */
+            margin: 0; padding: 0;
+            overflow: hidden; /* Prevents scrollbars */
+        }
+        
+        /* POINTER ON LINKS */
+        a, button, .btn-red {
+            cursor: pointer !important;
+        }
+
+        /* Fix Canvas Position */
+        #neural-network {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="intro-curtain">
+        <div class="curtain-content">
+            <div class="loader-ring"></div>
+            <h2 class="loader-text">MANAV_OS</h2>
+        </div>
+        <div class="curtain-panel top"></div>
+        <div class="curtain-panel bottom"></div>
+    </div>
+
+    <canvas id="neural-network"></canvas>
+
+    <nav>
+        <div class="logo">MANAV<span class="blink">_OS</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html" style="color:#ff003c">Home</a></li>
+            <li><a href="about.html">Profile</a></li>
+            <li><a href="projects.html">Writing</a></li>
+            <li><a href="education.html">Education</a></li> 
+            <li><a href="contact.html">Connect</a></li>
+        </ul>
+    </nav>
+
+    <section class="screen" id="hero-section">
+        <div class="hero-container" id="tilt-card">
+            <h1 class="hacker-text" data-value="MANAV SHAH">MANAV SHAH</h1>
+            <p class="subtitle">AI & DATA SCIENCE // ENGINEERING // WRITER</p>
+            <a href="about.html" class="btn-red magnetic-btn">INITIALIZE PROFILE</a>
+        </div>
+    </section>
+
+    <div class="hud-container">
+        <div class="hud-item hover-effect" style="text-align: left;">
+            <strong>SYSTEM DIAGNOSTICS</strong>
+            <span id="battery-level">BATTERY: DETECTING...</span><br>
+            <span id="net-status" style="font-size: 0.8rem; color:#888;">NET: ONLINE</span>
+        </div>
+        
+        <div class="hud-item hover-effect" style="text-align: center;">
+            <strong>TARGETING</strong>
+            <span id="mouse-coords">X: 000 | Y: 000</span>
+        </div>
+
+        <div class="hud-item hover-effect" style="text-align: right;">
+            <strong>LOCAL TIME</strong>
+            <span id="system-time">00:00:00</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

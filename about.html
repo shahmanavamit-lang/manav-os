@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="description" content="Profile of Manav Shah. AI & Data Science Student proficient in C++, Web Architecture, and Leadership.">
+<meta name="keywords" content="Manav Shah, Profile, Skills, Resume, AI Engineer, C++, Leadership">
+<meta name="author" content="Manav Shah">
+<meta property="og:title" content="MANAV_OS | Profile & Skills">
+<meta property="og:description" content="Discover the skills, experience, and background of Manav Shah.">
+<meta property="og:image" content="assets/profile.jpg">
+<meta property="og:url" content="https://manav-os.netlify.app/about.html">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANAV | PROFILE</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        /* 1. CORE STYLES */
+        body { background-color: #050505; color: #fff; font-family: 'Share Tech Mono', monospace; overflow-x: hidden; margin: 0; }
+        
+        /* Hides default cursor so Custom Cursor is visible */
+        * { cursor: none; }
+
+        .screen { 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 50px; 
+            position: relative; 
+            z-index: 10;
+            perspective: 1000px; /* Enable 3D Space */
+        }
+        
+        /* 2. BACKGROUND CANVAS */
+        #particle-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; /* Behind content */
+            background: #050505;
+        }
+
+        /* 3. CARD DESIGN (HOLOGRAPHIC TILT) */
+        .card-glass {
+            display: flex; gap: 50px; 
+            background: rgba(15, 15, 15, 0.9);
+            padding: 60px;
+            border: 1px solid #8a0020;
+            max-width: 1000px; width: 90%; align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+            margin-top: 50px;
+            position: relative;
+            z-index: 20;
+            
+            /* 3D TILT PROPERTIES */
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out; 
+        }
+
+        /* 4. FLOATING METADATA */
+        .meta-tag {
+            position: absolute;
+            font-size: 0.7rem;
+            color: #555;
+            letter-spacing: 2px;
+            pointer-events: none;
+        }
+        .meta-tl { top: 20px; left: 20px; color: #ff003c; } /* ID */
+        .meta-tr { top: 20px; right: 20px; } /* LOCATION */
+        .meta-bl { bottom: 20px; left: 20px; } /* STATUS */
+        .meta-br { bottom: 20px; right: 20px; } /* SYSTEM VER */
+
+        /* 5. PHOTO ANIMATION */
+        .photo-frame { position: relative; cursor: none; transform: translateZ(30px); }
+
+        .photo-frame img { 
+            width: 250px; height: 250px; object-fit: cover; 
+            filter: grayscale(100%);
+            border: 3px solid #ff003c; 
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
+            opacity: 0; transform: scale(0.8);
+            animation: photoScanIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.8s;
+            transition: all 0.4s ease-out;
+        }
+
+        .photo-frame:hover img {
+            filter: grayscale(0%);
+            box-shadow: 0 0 50px #ff003c, inset 0 0 20px #ff003c;
+            transform: scale(1.05);
+            border-color: #fff;
+        }
+
+        @keyframes photoScanIn {
+            0% { opacity: 0; transform: scale(0.8); filter: grayscale(100%) blur(10px) brightness(2); }
+            50% { opacity: 0.8; transform: scale(1.05); filter: grayscale(100%) blur(2px) brightness(1.5); box-shadow: 0 0 50px #ff003c; }
+            100% { opacity: 1; transform: scale(1); filter: grayscale(100%) blur(0px) brightness(1); }
+        }
+
+        /* 6. BIO & TYPEWRITER */
+        .bio { transform: translateZ(20px); }
+        
+        h2 { color: #ff003c; letter-spacing: 3px; margin-bottom: 20px; }
+        
+        /* The Typewriter Text Container */
+        .typewriter-text {
+            color: #ccc; 
+            font-size: 1.1rem; 
+            line-height: 1.6;
+            min-height: 100px; 
+            display: inline;
+        }
+        
+        .cursor-blink {
+            display: inline-block;
+            width: 8px; height: 18px;
+            background: #ff003c;
+            margin-left: 5px;
+            animation: blink 0.8s infinite;
+        }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+
+        /* SKILL BARS */
+        .skill-box { margin-bottom: 20px; width: 100%; }
+        .skill-name { display: block; color: #fff; margin-bottom: 5px; }
+        .progress-bar { width: 100%; height: 8px; background: #111; border: 1px solid #333; position: relative; overflow: hidden; }
+        .fill { 
+            height: 100%; background: #ff003c; width: 0%; box-shadow: 0 0 10px #ff003c;
+            /* Animation starts after bio typing is mostly done */
+            animation: fillBar 2s cubic-bezier(0.16, 1, 0.3, 1) forwards 3.0s; 
+        }
+        @keyframes fillBar { from { width: 0%; } }
+
+        @media (max-width: 768px) { .card-glass { flex-direction: column; text-align: center; } }
+        
+        nav { position: fixed; top: 0; width: 100%; padding: 20px 50px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.9); z-index: 999; border-bottom: 1px solid #8a0020; }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { color: #fff; text-decoration: none; font-size: 1.1rem; cursor: none; }
+        
+        /* CURTAIN STYLES */
+        #intro-curtain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; justify-content: center; align-items: center; pointer-events: none; }
+        .curtain-panel { position: absolute; left: 0; width: 100%; height: 50%; background: #000; transition: transform 0.8s ease-in-out; }
+        .top { top: 0; transform-origin: top; }
+        .bottom { bottom: 0; transform-origin: bottom; }
+        .curtain-content { position: absolute; z-index: 10000; transition: opacity 0.5s ease-out; }
+        .curtain-open .top { transform: translateY(-100%); }
+        .curtain-open .bottom { transform: translateY(100%); }
+        .curtain-open .curtain-content { opacity: 0; }
+
+        /* CUSTOM CURSOR STYLES (Backup) */
+        .cursor-dot {
+            width: 5px; height: 5px; background-color: #fff;
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            border-radius: 50%; z-index: 99999; pointer-events: none;
+        }
+        .cursor-outline {
+            width: 30px; height: 30px; border: 1px solid #ff003c;
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            border-radius: 50%; z-index: 99998; pointer-events: none;
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="cursor-dot" data-cursor-dot></div>
+    <div class="cursor-outline" data-cursor-outline></div>
+
+    <div id="intro-curtain">
+        <div class="curtain-content"><h2 style="color:#fff; letter-spacing:5px;">LOADING PROFILE...</h2></div>
+        <div class="curtain-panel top"></div><div class="curtain-panel bottom"></div>
+    </div>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <<nav>
+    <div style="color:#ff003c; font-weight:bold; font-size:1.5rem;">MANAV_OS</div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html" style="color:#ff003c">Profile</a></li>
+        <li><a href="projects.html">Writing</a></li>
+        <li><a href="education.html">Education</a></li> <li><a href="contact.html">Connect</a></li>
+    </ul>
+</nav>
+
+    <section class="screen">
+        
+        <div class="card-glass" id="holo-card">
+            
+            <div class="meta-tag meta-tl">[ ID: MNV-1308 ]</div>
+            <div class="meta-tag meta-tr">[ LOC: MUMBAI_SERVER ]</div>
+            <div class="meta-tag meta-bl">[ STATUS: ONLINE ]</div>
+            <div class="meta-tag meta-br">[ SYS_VER: 2.0 ]</div>
+
+            <div class="photo-frame">
+                <img src="assets/my-photo.jpg" alt="Profile" onerror="this.src='https://via.placeholder.com/250/000000/ff003c?text=MANAV'">
+            </div>
+
+            <div class="bio">
+                <h2>// IDENTITY_VERIFIED</h2>
+                <br>
+                
+                <p>
+                    <span id="bio-output" class="typewriter-text"></span><span class="cursor-blink"></span>
+                </p>
+                
+                <div class="skills-container">
+                    <br>
+                    <h3>// TECHNICAL_STACK</h3>
+                    <div class="skill-box">
+                        <span class="skill-name">C / C++ / Web Development</span>
+                        <div class="progress-bar"><div class="fill" style="width: 90%"></div></div>
+                    </div>
+                    
+                    <h3>// LEADERSHIP_CORE</h3>
+                    <div class="skill-box">
+                        <span class="skill-name">Public Speaking & Event Management</span>
+                        <div class="progress-bar"><div class="fill" style="width: 95%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // 1. FORCE CURTAIN OPEN (The Fix)
+            const curtain = document.getElementById('intro-curtain');
+            setTimeout(() => { 
+                curtain.classList.add('curtain-open'); 
+            }, 500); // Opens after 0.5 seconds
+
+            // 2. TYPEWRITER BIO
+            const bioText = "I am a First-Year student at Shah & Anchor Kutchhi Engineering College. My technical foundation is built on C/C++ and Web Development, but my true drive comes from leading teams.";
+            const bioOutput = document.getElementById('bio-output');
+            let typeIndex = 0;
+
+            function typeBio() {
+                if (typeIndex < bioText.length) {
+                    bioOutput.innerHTML += bioText.charAt(typeIndex);
+                    typeIndex++;
+                    setTimeout(typeBio, 20); // Speed
+                }
+            }
+            // Start typing shortly after curtain opens
+            setTimeout(typeBio, 1000);
+
+            // 3. 3D TILT
+            const card = document.getElementById('holo-card');
+            document.addEventListener('mousemove', (e) => {
+                if(window.innerWidth > 768) { 
+                    const xAxis = (window.innerWidth / 2 - e.pageX) / 25; 
+                    const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+                    card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+                }
+            });
+
+            // 4. FAST CURSOR
+            const cursorDot = document.querySelector("[data-cursor-dot]");
+            const cursorOutline = document.querySelector("[data-cursor-outline]");
+            window.addEventListener("mousemove", function (e) {
+                const posX = e.clientX; const posY = e.clientY;
+                if(cursorDot) { cursorDot.style.left = `${posX}px`; cursorDot.style.top = `${posY}px`; }
+                if(cursorOutline) { cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 150, fill: "forwards" }); }
+            });
+
+            // 5. RED PARTICLES
+            const pCanvas = document.getElementById('particle-canvas');
+            if (pCanvas) {
+                const pCtx = pCanvas.getContext('2d');
+                pCanvas.width = window.innerWidth;
+                pCanvas.height = window.innerHeight;
+                let particles = [];
+                let pMouse = { x: null, y: null, radius: 150 } 
+                window.addEventListener('mousemove', function(e) { pMouse.x = e.x; pMouse.y = e.y; });
+                class RedParticle {
+                    constructor() {
+                        this.x = Math.random() * pCanvas.width;
+                        this.y = Math.random() * pCanvas.height;
+                        this.size = Math.random() * 3 + 1; 
+                        this.speedX = Math.random() * 1 - 0.5; 
+                        this.speedY = Math.random() * 1 - 0.5;
+                        this.baseX = this.x; this.baseY = this.y;
+                        this.density = (Math.random() * 30) + 1; 
+                    }
+                    update() {
+                        let dx = pMouse.x - this.x; let dy = pMouse.y - this.y;
+                        let distance = Math.sqrt(dx*dx + dy*dy);
+                        if (distance < pMouse.radius) {
+                            const forceDirectionX = dx / distance; const forceDirectionY = dy / distance;
+                            const force = (pMouse.radius - distance) / pMouse.radius;
+                            const directionX = forceDirectionX * force * this.density;
+                            const directionY = forceDirectionY * force * this.density;
+                            this.x -= directionX; this.y -= directionY;
+                        } else {
+                            if (this.x !== this.baseX) { let dx = this.x - this.baseX; this.x -= dx/10; }
+                            if (this.y !== this.baseY) { let dy = this.y - this.baseY; this.y -= dy/10; }
+                        }
+                        this.draw();
+                    }
+                    draw() {
+                        pCtx.fillStyle = '#ff003c'; pCtx.beginPath();
+                        pCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        pCtx.closePath(); pCtx.fill();
+                    }
+                }
+                function initParticles() { particles = []; for (let i = 0; i < 150; i++) { particles.push(new RedParticle()); } }
+                function animateParticles() { pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height); for (let i = 0; i < particles.length; i++) { particles[i].update(); } requestAnimationFrame(animateParticles); }
+                window.addEventListener('resize', () => { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; initParticles(); });
+                initParticles(); animateParticles();
+            }
+        });
+    </script>
+</body>
+</html>
