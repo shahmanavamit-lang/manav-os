@@ -3,7 +3,7 @@
 **Live Site:** https://manav-os.netlify.app
 
 ## Project Overview
-Welcome to Manav_OS, a browser-based operating system designed to visualize my trajectory as an AI & Data Science engineering student.
+Welcome to **manav-os**, a browser-based operating system designed to visualize my trajectory as an AI & Data Science engineering student.
 This project replaces the traditional static resume with an immersive, terminal-inspired experience that reflects my technical personality.
 
 This project was built using a modern "Human-in-the-Loop" workflow. In an era where syntax is cheap but logic is expensive,
